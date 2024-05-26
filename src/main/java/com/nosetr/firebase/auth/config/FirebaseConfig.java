@@ -22,7 +22,9 @@ public class FirebaseConfig {
 	
 	@Bean
 	public FirebaseApp initializeFirebase() throws IOException {
-		FileInputStream serviceAccount = new FileInputStream("src/main/resources/firebase-service-account.json");
+		File file = ResourceUtils.getFile("classpath:firebase-service-account.json");
+
+		FileInputStream serviceAccount = new FileInputStream(file);
 
 		FirebaseOptions options = FirebaseOptions.builder()
 				.setCredentials(GoogleCredentials.fromStream(serviceAccount))
@@ -30,5 +32,14 @@ public class FirebaseConfig {
 
 		return (FirebaseApp.getApps()
 				.isEmpty()) ? FirebaseApp.initializeApp(options) : FirebaseApp.getInstance();
+	}
+
+	/**
+	 * An additional FirebaseAuth bean that uses the FirebaseApp instance.
+	 * This ensures that FirebaseAuth can be injected into other classes.
+	 */
+	@Bean
+	public FirebaseAuth firebaseAuth(FirebaseApp firebaseApp) {
+		return FirebaseAuth.getInstance(firebaseApp);
 	}
 }
